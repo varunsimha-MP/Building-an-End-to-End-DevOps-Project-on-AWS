@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app_pod
+specs:
+  replicas: 3
+  strategy:
+  type: RollingUpdate
+  rollingUpdate: 
+    maxUnavailable: 1
+    maxSurge: 1
+  selectors:
+    matchLabels:
+    app: app_pod
+  templates:
+    name: app_pod
+    labals:
+      app: app_pod
+    specs:
+      containers:
+      - name: app_pod
+        image: myapp:latest
+        imagePullPolicy: Never
+        resource:
+          limits:
+            cpu: "500M"
+            memory: "128Mi"
+        ports:
+          - containerPort: 8080
+
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: my_config
+              Key: DB_HOST
+
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: my_config
+              Key: DB_NAME
+
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: my_config
+              key: DB_USER
+
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: my_sceret
+              key: DB_PASSWORD
+    

@@ -1,0 +1,12 @@
+apiVersion: app_svc/v1
+kind: Service
+metadata:
+  name: app_pod
+spec:
+  selector:
+    app: app_pod
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000

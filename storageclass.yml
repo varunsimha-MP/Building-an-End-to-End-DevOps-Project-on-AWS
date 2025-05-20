@@ -1,0 +1,5 @@
+apiVersion: sc/v1
+kind: storageClass 
+metadata:
+  name: efs-sc
+provisioner: efs.csi.aws.com

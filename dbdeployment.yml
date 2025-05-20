@@ -1,0 +1,65 @@
+apiVersion: db/v1
+kind: Deployment
+metadata:
+  name: db_pod
+spec:
+  replicas: 3
+  strategy:
+  type: RollingUpdate
+  rollingUpdate: 
+    maxUnavailable: 1
+    maxSurge: 1
+  selector:
+    matchLabels:
+      app: db_pod
+  template:
+    metadata:
+      labels:
+        app: db_pod
+    spec:
+      containers:
+      - name: db_pod
+        image: bitnami/mysql:latest
+        resources:
+          limits:
+            memory: "1G"
+            cpu: "500m"
+        ports:
+        - containerPort: 3306
+      
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: my_secret
+              key: MYSQL_ROOT_PASSWORD
+        
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapRef:
+              name: my_config
+              key: MYSQL_DATABASE
+
+        volumeMounts:
+          - name: mysql_storage
+            mountPath: "/bitnami/mysql"
+          - name: init-script-volume
+            mountPath: "/docker-entrypoint-initdb.d"
+
+      volumes:
+      - name: mysql_storage
+        persistentVolumeClaim:
+          claimName: my_pvc
+      - name: init-script-volume
+        configMap:
+          name: my_config
+          items:
+            - key: init.sql
+              path: init.sql 
+
+        
+
+
+
+
+
