@@ -1,11 +1,11 @@
-apiVersion: dbsvc/v1
+apiVersion: v1
 kind: Service
 metadata:
-  name: db_pod
+  name: mydb
 spec:
   selector:
-    app: db_pod
+    app: db-pod
   ports:
   - port: 3306
     targetPort: 3306
-  clusterIP: None
+  type: ClusterIP

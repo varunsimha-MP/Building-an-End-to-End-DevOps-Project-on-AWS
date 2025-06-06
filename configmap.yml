@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: my_config
+  name: my-config
 data:
   MYSQL_DATABASE: django_crud
   DB_HOST: mydb 

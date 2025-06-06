@@ -1,65 +1,57 @@
-apiVersion: db/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db_pod
+  name: db-pod
 spec:
-  replicas: 3
+  replicas: 1
   strategy:
-  type: RollingUpdate
-  rollingUpdate: 
-    maxUnavailable: 1
-    maxSurge: 1
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
-      app: db_pod
+      app: db-pod
   template:
     metadata:
       labels:
-        app: db_pod
+        app: db-pod
     spec:
       containers:
-      - name: db_pod
-        image: bitnami/mysql:latest
-        resources:
-          limits:
-            memory: "1G"
-            cpu: "500m"
-        ports:
-        - containerPort: 3306
-      
-        env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: my_secret
-              key: MYSQL_ROOT_PASSWORD
-        
-        - name: MYSQL_DATABASE
-          valueFrom:
-            configMapRef:
-              name: my_config
-              key: MYSQL_DATABASE
+        - name: db-pod
+          image: bitnami/mysql:latest
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: MYSQL_ROOT_PASSWORD
 
-        volumeMounts:
-          - name: mysql_storage
-            mountPath: "/bitnami/mysql"
-          - name: init-script-volume
-            mountPath: "/docker-entrypoint-initdb.d"
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-secret
+                  key: DB_PASSWORD
+
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: "/bitnami/mysql"
+            - name: init-script-volume
+              mountPath: "/docker-entrypoint-initdb.d"
 
       volumes:
-      - name: mysql_storage
-        persistentVolumeClaim:
-          claimName: my_pvc
-      - name: init-script-volume
-        configMap:
-          name: my_config
-          items:
-            - key: init.sql
-              path: init.sql 
-
-        
-
-
-
-
-
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: my-pvc
+        - name: init-script-volume
+          configMap:
+            name: my-config
+            items:
+              - key: init.sql
+                path: init.sql
