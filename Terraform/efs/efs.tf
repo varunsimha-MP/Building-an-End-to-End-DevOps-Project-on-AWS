@@ -1,16 +1,19 @@
 resource "aws_efs_file_system" "eks_efs" {
     creation_token = "eks_efs"
+    encrypted =  true
     lifecycle_policy {
       transition_to_ia = "AFTER_14_DAYS"
       transition_to_archive = "AFTER_30_DAYS"
     } 
+    tags = var.efs
     depends_on = [ var.vpc_id ] 
      
 }
 
-resource "aws_efs_mount_target" "eks_mount_efs" {
+resource "aws_efs_mount_target" "efs_mount_eks" {
     file_system_id = aws_efs_file_system.eks_efs.id
-    subnet_id = var.subnet_ids 
+    count = length(var.subnet_ids)
+    subnet_id = var.subnet_ids[count.index]
 }
 
 resource "aws_security_group" "efs_SG" {
@@ -23,8 +26,8 @@ resource "aws_security_group" "efs_SG" {
         description = "Inbound Rule"
         from_port = ingress.value.port 
         to_port = ingress.value.port
-        protocol = ingress.value.port
-        cidr_blocks = [ingress.value.cidr_block]
+        protocol = ingress.value.protocol
+        cidr_blocks = ingress.value.cidr_block
         }
   }
   egress {

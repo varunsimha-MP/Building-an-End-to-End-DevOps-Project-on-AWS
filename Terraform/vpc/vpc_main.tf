@@ -26,8 +26,8 @@ resource "aws_route_table" "main_rt" {
 resource "aws_subnet" "main_subnet" {
     count = var.subnet_count
     vpc_id = aws_vpc.main_vpc.id
-    availability_zone = local.azs[count.index]
     cidr_block = var.cidr_block_subnet[count.index]
+    availability_zone = local.azs[count.index]
     map_public_ip_on_launch = true
     tags = {
         "kubernetes.io/role/internal-elb" = "1"

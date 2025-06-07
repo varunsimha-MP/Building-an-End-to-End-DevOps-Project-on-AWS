@@ -30,8 +30,7 @@ variable "cidr_block_subnet" {
 }
 
 variable "subnet" {
-    default = {
-        Name = "Teraaform_public_subnet-"
-    }
+    type = list(string)
+    default = ["Terraform_public_subnet-1","Terraform_public_subnet-2","Terraform_public_subnet-3"]
   
 }

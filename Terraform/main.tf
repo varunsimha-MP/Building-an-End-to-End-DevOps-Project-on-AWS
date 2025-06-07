@@ -11,9 +11,18 @@ module "eks" {
       port = 0
       protocol = "-1"
       cidr_block = ["0.0.0.0/0"]
-      description = "Allowing full access temporily"
+      description = "Allowing full access"
     }
   }
+  eks_node_grp_ingress_rule = {
+    "test" = {
+      port = 0
+      protocol = "-1"
+      cidr_block = ["0.0.0.0/0"]
+      description = "Allowing full access"
+    }
+  }
+
 }
 
 module "efs" {
@@ -29,4 +38,5 @@ module "efs" {
       security_group = [module.eks.security_group]
     }
   }
+  depends_on = [module.eks]
 }
