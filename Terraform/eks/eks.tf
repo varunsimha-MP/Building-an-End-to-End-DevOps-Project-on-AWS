@@ -23,7 +23,14 @@ resource "aws_eks_node_group" "mian_node_group" {
 
   instance_types = ["t3.medium"]
 
-  depends_on = [ aws_eks_cluster.main_eks ]
+  depends_on = [ 
+    aws_eks_cluster.main_eks,
+    aws_iam_role_policy_attachment.eks_cluster_policy,
+    aws_iam_role_policy_attachment.eks_efs_policy,
+    aws_iam_role_policy_attachment.eks_node_policy,
+    aws_iam_role_policy_attachment.eks_vpc_cni,
+    ]
+  
 }
 
 resource "aws_eks_addon" "eks_vpc_cni" {

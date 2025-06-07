@@ -15,7 +15,7 @@ resource "aws_internet_gateway" "main_ig" {
 
 
 resource "aws_route_table" "main_rt" {
-    vpc_id = aws_vpc_main_vpc.id
+    vpc_id = aws_vpc.main_vpc.id
     route {
         cidr_block = "0.0.0.0/0"
         gateway_id = aws_internet_gateway.main_ig.id
@@ -38,6 +38,6 @@ resource "aws_subnet" "main_subnet" {
 
 resource "aws_route_table_association" "main_rt-association-subnet" {
     count = var.subnet_count
-    subnet_id = aws_subnet.main_subnet.id
+    subnet_id = aws_subnet.main_subnet[count.index].id
     route_table_id = aws_route_table.main_rt.id
 }

@@ -1,5 +1,5 @@
 variable "cidr_block" {
-  default = ["10.0.0.0/16"]
+  default = "10.0.0.0/16"
 }
 
 variable "vpc" {
@@ -22,7 +22,7 @@ variable "rt" {
 }
 
 variable "subnet_count" {
-    default = 2
+    default = 3
 }
 
 variable "cidr_block_subnet" {
