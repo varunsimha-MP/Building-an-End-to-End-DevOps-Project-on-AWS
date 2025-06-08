@@ -7,7 +7,13 @@ variable "vpc_id" {
 }
 
 variable "efs_ingress_rule" {
-  
+    type = map(object({
+        port = number
+        protocol = string
+        cidr_blocks= list(string)
+        description = string
+        security_group = list(string)
+    }))
 }
 
 variable "sg" {

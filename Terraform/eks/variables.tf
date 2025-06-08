@@ -1,9 +1,12 @@
+variable "region" {
+  default = "ap-southeast-1"
+}
 variable "eks_name" {
     default = "testing_k8s"
 }
 
 variable "sub_ids" {
-
+  type        = list(string)
 }
 
 variable "vpc_id" {
@@ -28,15 +31,6 @@ variable "node_sg" {
 }
 
 variable "eks_ingress_rule" {
-  type = map(object({
-    port         = number
-    protocol     = string
-    cidr_block   = list(string)
-    description  = string
-  }))
-}
-
-variable "eks_node_grp_ingress_rule" {
   type = map(object({
     port         = number
     protocol     = string

@@ -14,15 +14,6 @@ module "eks" {
       description = "Allowing full access"
     }
   }
-  eks_node_grp_ingress_rule = {
-    "test" = {
-      port = 0
-      protocol = "-1"
-      cidr_block = ["0.0.0.0/0"]
-      description = "Allowing full access"
-    }
-  }
-
 }
 
 module "efs" {
@@ -32,9 +23,9 @@ module "efs" {
   efs_ingress_rule = {
     "efs_inbound" = {
       port = 2049
-      protocol = "NFS"
-      cidr_block = []
-      description = "allow NFS access"
+      protocol = "TCP"
+      cidr_blocks = []
+      description = "Allow NFS access from EKS nodes"
       security_group = [module.eks.security_group]
     }
   }

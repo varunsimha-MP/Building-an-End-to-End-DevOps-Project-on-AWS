@@ -1,10 +1,14 @@
 resource "aws_efs_file_system" "eks_efs" {
     creation_token = "eks_efs"
     encrypted =  true
+    performance_mode = "generalPurpose"
+    throughput_mode = "elastic"
     lifecycle_policy {
       transition_to_ia = "AFTER_14_DAYS"
-      transition_to_archive = "AFTER_30_DAYS"
     } 
+    lifecycle_policy {
+      transition_to_archive = "AFTER_30_DAYS"
+    }
     tags = var.efs
     depends_on = [ var.vpc_id ] 
      
@@ -27,7 +31,8 @@ resource "aws_security_group" "efs_SG" {
         from_port = ingress.value.port 
         to_port = ingress.value.port
         protocol = ingress.value.protocol
-        cidr_blocks = ingress.value.cidr_block
+        cidr_blocks = ingress.value.cidr_blocks
+        security_groups = ingress.value.security_group
         }
   }
   egress {
