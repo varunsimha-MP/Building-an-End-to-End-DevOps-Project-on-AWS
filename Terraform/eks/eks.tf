@@ -5,8 +5,9 @@ resource "aws_eks_cluster" "main_eks" {
       subnet_ids = var.sub_ids
       endpoint_private_access = true
       endpoint_public_access = true
-      
+      security_group_ids = [aws_security_group.eks_SG.id]
     }
+    depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy  ]
 }
 
 resource "aws_eks_addon" "eks_vpc_cni" {
@@ -21,19 +22,6 @@ resource "aws_eks_addon" "eke_kube_proxy" {
     cluster_name = aws_eks_cluster.main_eks.name
     addon_name = "kube-proxy"
     depends_on = [ aws_eks_cluster.main_eks ]
-}
-
-resource "aws_eks_addon" "eks_efs" {
-    cluster_name = aws_eks_cluster.main_eks.name
-    addon_name = "amazon-efs-csi-driver"
-    service_account_role_arn = data.aws_iam_role.efs.arn
-    depends_on = [ aws_eks_cluster.main_eks ]
-}
-
-resource "aws_eks_addon" "eks_coredns" {
-  cluster_name = aws_eks_cluster.main_eks.name
-  addon_name   = "coredns"
-  depends_on   = [aws_eks_cluster.main_eks]
 }
 
 resource "aws_eks_node_group" "main_node_group" {
@@ -51,8 +39,10 @@ resource "aws_eks_node_group" "main_node_group" {
     max_size = 4
     min_size = 1
   }
-
+  ami_type = "AL2_86_64"
   instance_types = ["t3.medium"]
+  disk_size = 30
+  capacity_type = "ON_DEMAND"
 
   depends_on = [ 
     aws_eks_cluster.main_eks,
@@ -111,43 +101,5 @@ resource "aws_security_group" "eks_node_grp_SG" {
 }
 
 
-#Roles
-data "aws_iam_role" "cluster_role" {
-    name = "AmazonEKSAutoClusterRole"
-}
 
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-    for_each = toset(var.eks_cluster_policies)
-    role = data.aws_iam_role.cluster_role.name
-    policy_arn = each.value
-}
-
-data "aws_iam_role" "node_role" {
-  name = "ec2roleforeks"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_node_policy" {
-    for_each = toset(var.eks_node_policies)
-    role = data.aws_iam_role.node_role.name
-    policy_arn = each.value
-}
-
-data "aws_iam_role" "vpc_cni" {
-  name = "AmazonEKSPodIdentityAmazonVPCCNIRole"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_vpc_cni" {
-  role = data.aws_iam_role.vpc_cni.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-}
-
-
-data "aws_iam_role" "efs" {
-  name = "AmazonEKSPodIdentityAmazonEFSCSIDriverRole"
-}
-
-resource "aws_iam_role_policy_attachment" "eks_efs_policy" {
-  role       = data.aws_iam_role.efs.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
-}
 

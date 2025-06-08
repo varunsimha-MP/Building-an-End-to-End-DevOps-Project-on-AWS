@@ -30,8 +30,7 @@ resource "aws_subnet" "main_subnet" {
     availability_zone = local.azs[count.index]
     map_public_ip_on_launch = true
     tags = {
-        "kubernetes.io/role/internal-elb" = "1"
-        "kubernetes.io/cluster/demo"      = "owned"
+        "kubernetes.io/role/elb" = "1"
         Name = var.subnet[count.index]
     }
 }

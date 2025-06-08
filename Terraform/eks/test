@@ -1,0 +1,12 @@
+resource "aws_eks_addon" "eks_efs" {
+    cluster_name = aws_eks_cluster.main_eks.name
+    addon_name = "amazon-efs-csi-driver"
+    service_account_role_arn = data.aws_iam_role.efs.arn
+    depends_on = [ aws_eks_cluster.main_eks ]
+}
+
+resource "aws_eks_addon" "eks_coredns" {
+  cluster_name = aws_eks_cluster.main_eks.name
+  addon_name   = "coredns"
+  depends_on   = [aws_eks_cluster.main_eks]
+}
