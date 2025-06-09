@@ -10,53 +10,6 @@ resource "aws_eks_cluster" "main_eks" {
     depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy  ]
 }
 
-resource "aws_eks_addon" "pod_identity_agent" {
-  cluster_name      = aws_eks_cluster.main_eks.name
-  addon_name        = "eks-pod-identity-agent"
-  depends_on = [aws_eks_cluster.main_eks]
-}
-
-
-resource "aws_eks_addon" "ekf_kube_proxy" {
-    cluster_name = aws_eks_cluster.main_eks.name
-    addon_name = "kube-proxy"
-    depends_on = [ aws_eks_cluster.main_eks ]
-}
-
-resource "aws_eks_pod_identity_association" "vpc_cni" {
-  cluster_name = aws_eks_cluster.main_eks.name
-  namespace    = "kube-system"
-  service_account = "aws-node"  # Important: This is the default for vpc-cni
-  role_arn     = aws_iam_role.vpc_cni_pod_identity_role.arn
-  depends_on = [ 
-    aws_eks_cluster.main_eks,
-    aws_eks_addon.pod_identity_agent
-   ]
-}
-
-resource "aws_eks_addon" "eks_vpc_cni" {
-    cluster_name = aws_eks_cluster.main_eks.name
-    addon_name = "vpc-cni"
-    depends_on = [ 
-      aws_eks_cluster.main_eks,
-      aws_eks_pod_identity_association.vpc_cni
-    ]
-  
-}
-
-
-
-resource "aws_eks_addon" "eks_coredns" {
-  cluster_name = aws_eks_cluster.main_eks.name
-  addon_name   = "coredns"
-  addon_version = "v1.11.4-eksbuild.2"
-  resolve_conflicts_on_update = "PRESERVE"
-  depends_on   = [
-    aws_eks_cluster.main_eks,
-    aws_eks_node_group.main_node_group
-  ]
-}
-
 resource "aws_eks_node_group" "main_node_group" {
   cluster_name = aws_eks_cluster.main_eks.name
   node_group_name = var.node_name
@@ -108,6 +61,57 @@ resource "aws_security_group" "eks_SG" {
   }
   tags = var.sg
 }
+
+resource "aws_eks_addon" "pod_identity_agent" {
+  cluster_name      = aws_eks_cluster.main_eks.name
+  addon_name        = "eks-pod-identity-agent"
+  depends_on = [aws_eks_cluster.main_eks]
+}
+
+
+resource "aws_eks_addon" "ekf_kube_proxy" {
+    cluster_name = aws_eks_cluster.main_eks.name
+    addon_name = "kube-proxy"
+    depends_on = [ aws_eks_cluster.main_eks ]
+}
+
+resource "aws_eks_pod_identity_association" "vpc_cni" {
+  cluster_name = aws_eks_cluster.main_eks.name
+  namespace    = "kube-system"
+  service_account = "aws-node"  # Important: This is the default for vpc-cni
+  role_arn     = aws_iam_role.vpc_cni_pod_identity_role.arn
+  depends_on = [ 
+    aws_eks_cluster.main_eks,
+    aws_eks_addon.pod_identity_agent,
+    aws_eks_node_group.main_node_group
+   ]
+}
+
+resource "aws_eks_addon" "eks_vpc_cni" {
+    cluster_name = aws_eks_cluster.main_eks.name
+    addon_name = "vpc-cni"
+    depends_on = [ 
+      aws_eks_cluster.main_eks,
+      aws_eks_pod_identity_association.vpc_cni
+    ]
+  
+}
+
+
+
+resource "aws_eks_addon" "eks_coredns" {
+  cluster_name = aws_eks_cluster.main_eks.name
+  addon_name   = "coredns"
+  addon_version = "v1.11.4-eksbuild.2"
+  resolve_conflicts_on_update = "PRESERVE"
+  depends_on   = [
+    aws_eks_cluster.main_eks,
+    aws_eks_node_group.main_node_group
+  ]
+}
+
+
+
 
 
 
