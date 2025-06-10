@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+    environment {
+        AWS_REGION = 'ap-southeast-1'
+	    AWS_ACCOUNT_ID = '590183945701'
+        ECR_REPO = '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/python_web_application'
+    }
+    stages {
+        stage('Git clone') {
+            steps {
+                withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
+			        script {
+				        if (fileExists('https://github.com/varunsimha-MP/Django_CRUD_Basic-main-.git')) {
+					        dir('Django_CRUD_Basic-main-') {
+						        sh 'git pull'
+					        }
+				        }
+				        else {
+				            sh 'git clone https://$github@github.com/varunsimha-MP/Django_CRUD_Basic-main-.git'
+			            }
+                    }
+                }
+            }
+        }
+	stage('Clean and build Docker Images on Jenkin server') {
+		steps {
+		    dir('Django_CRUD_Basic-main-') {
+			    sh """
+				    docker-compose down --rmi all --remove-orphans
+				    docker-compose build
+				"""
+			    }
+		    }
+		}
+        stage('Push Docker Image To ECR') {
+            steps {
+                dir('Python-Web-Application-Jenkins') {
+                    sh """
+                        docker login -u AWS -p \$(aws ecr get-login-password --region ${AWS_REGION}) ${ECR_REPO}
+                        #docker build -t ${ECR_REPO}:latest .
+                        docker tag python_web_application:latest ${ECR_REPO}:latest
+                        docker push ${ECR_REPO}:latest
+                    """
+                }
+            }
+        }
+        stage('Deploy to ECS') {
+            steps {
+                sh """
+                    aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --force-new-deployment
+                """
+            }
+        }
+    }
+}
