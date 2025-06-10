@@ -4,14 +4,14 @@ metadata:
   name: db-pod
 spec:
   replicas: 1
-  strategy:
-    type: RollingUpdate
-    rollingUpdate: 
-      maxUnavailable: 1
-      maxSurge: 1
   selector:
     matchLabels:
       app: db-pod
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   template:
     metadata:
       labels:
@@ -22,12 +22,12 @@ spec:
       containers:
         - name: db-pod
           image: bitnami/mysql:latest
+          ports:
+            - containerPort: 3306
           resources:
             limits:
               memory: "1Gi"
               cpu: "500m"
-          ports:
-            - containerPort: 3306
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -41,11 +41,20 @@ spec:
                   name: my-secret
                   key: DB_PASSWORD
 
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: my-config
+                  key: MYSQL_DATABASE
+
+            - name: DB_USER
+              value: root
+
           volumeMounts:
             - name: mysql-storage
-              mountPath: "/bitnami/mysql"
+              mountPath: /bitnami/mysql
             - name: init-script-volume
-              mountPath: "/docker-entrypoint-initdb.d"
+              mountPath: /docker-entrypoint-initdb.d
 
       volumes:
         - name: mysql-storage

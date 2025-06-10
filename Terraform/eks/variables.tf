@@ -55,7 +55,9 @@ variable "eks_node_policies" {
     "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy",
     "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
-    "arn:aws:iam::aws:policy/AmazonEKSLoadBalancingPolicy"
+    "arn:aws:iam::aws:policy/AmazonEKSLoadBalancingPolicy",
+    "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess",
+    "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
   ]
   
 }

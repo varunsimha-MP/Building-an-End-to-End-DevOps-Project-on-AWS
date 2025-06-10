@@ -9,7 +9,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 }
 
 resource "aws_iam_role" "node_role" {
-  name = "ec2roleforeks"
+  name = "Terraform_ec2roleforeks"
 
   # Assume role policy is required, use the same policy used during original creation if available
   assume_role_policy = jsonencode({
@@ -33,7 +33,7 @@ resource "aws_iam_role" "node_role" {
 
 resource "aws_iam_role_policy_attachment" "eks_node_policy" {
     for_each = toset(var.eks_node_policies)
-    role = data.aws_iam_role.node_role.name
+    role = aws_iam_role.node_role.name
     policy_arn = each.value
 }
 
