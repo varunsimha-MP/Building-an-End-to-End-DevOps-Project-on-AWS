@@ -8,9 +8,28 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
     policy_arn = each.value
 }
 
-data "aws_iam_role" "node_role" {
+resource "aws_iam_role" "node_role" {
   name = "ec2roleforeks"
+
+  # Assume role policy is required, use the same policy used during original creation if available
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    "eks:eks-cluster-name" = var.eks_name
+  }
 }
+
 
 resource "aws_iam_role_policy_attachment" "eks_node_policy" {
     for_each = toset(var.eks_node_policies)
