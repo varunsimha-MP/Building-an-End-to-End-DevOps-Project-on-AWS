@@ -31,7 +31,9 @@ resource "aws_subnet" "main_subnet" {
     map_public_ip_on_launch = true
     tags = {
         "kubernetes.io/role/elb" = "1"
-        "kubernetes.io/cluster/testing_k8s" = "shared"
+        "kubernetes.io/cluster/testing_k8s" = "owned"
+       
+
         Name = var.subnet[count.index]
     }
 }

@@ -7,11 +7,17 @@ module "eks" {
   vpc_id = module.vpc.vpc_id
   sub_ids = module.vpc.subnet_ids
   eks_ingress_rule = {
-    "test" = {
+    "all" = {
       port = 0
       protocol = "-1"
       cidr_block = ["0.0.0.0/0"]
-      description = "Allowing full access"
+      description = "Allowing All Traffic"
+    }
+    "SSH" = {
+      port = 22
+      protocol = "tcp"
+      cidr_block = ["0.0.0.0/0"]
+      description = "Allowing SSH traffic"
     }
   }
 }

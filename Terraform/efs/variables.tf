@@ -6,6 +6,12 @@ variable "vpc_id" {
   
 }
 
+variable "eks_ac" {
+  default = {
+    Name = "EKS_AC"
+  }
+}
+
 variable "efs_ingress_rule" {
     type = map(object({
         port = number

@@ -17,6 +17,8 @@ spec:
       labels:
         app: db-pod
     spec:
+      securityContext:
+        fsGroup: 1001
       containers:
         - name: db-pod
           image: bitnami/mysql:latest
