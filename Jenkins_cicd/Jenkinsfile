@@ -16,7 +16,7 @@ pipeline {
 					        }
 				        }
 				        else {
-				            sh 'git clone https://$github@github.com/varunsimha-MP/Django_CRUD_Basic-main-.git'
+				            sh 'git clone https://$github@github.com/varunsimha-MP/Django_CRUD_Basic-main.git'
 			            }
                     }
                 }
