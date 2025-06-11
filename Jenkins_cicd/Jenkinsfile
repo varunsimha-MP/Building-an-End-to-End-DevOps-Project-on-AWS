@@ -10,8 +10,8 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
 			        script {
-				        if (fileExists('https://github.com/varunsimha-MP/Django_CRUD_Basic-main-.git')) {
-					        dir('Django_CRUD_Basic-main-') {
+				        if (fileExists('Django_CRUD_Basic-main')) {
+					        dir('Django_CRUD_Basic-main') {
 						        sh 'git pull'
 					        }
 				        }
@@ -24,7 +24,7 @@ pipeline {
         }
 	stage('Clean and build Docker Images on Jenkin server') {
 		steps {
-		    dir('Django_CRUD_Basic-main-') {
+		    dir('Django_CRUD_Basic-main') {
 			    sh """
 				    docker-compose down --rmi all --remove-orphans
 				    docker-compose build
@@ -42,13 +42,6 @@ pipeline {
                         docker push ${ECR_REPO}:latest
                     """
                 }
-            }
-        }
-        stage('Deploy to ECS') {
-            steps {
-                sh """
-                    aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --force-new-deployment
-                """
             }
         }
     }
