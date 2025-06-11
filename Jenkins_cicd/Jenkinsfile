@@ -12,7 +12,10 @@ pipeline {
 			        script {
 				        if (fileExists('Django_CRUD_Basic-main')) {
 					        dir('Django_CRUD_Basic-main') {
-						        sh 'git pull'
+						        sh '''
+                                git checout main
+                                git pull origin main
+                                '''
 					        }
 				        }
 				        else {
