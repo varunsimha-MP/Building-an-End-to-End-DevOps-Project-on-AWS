@@ -13,7 +13,7 @@ pipeline {
 				        if (fileExists('Django_CRUD_Basic-main')) {
 					        dir('Django_CRUD_Basic-main') {
 						        sh '''
-                                git checout main
+                                git checkout main
                                 git pull origin main
                                 '''
 					        }
