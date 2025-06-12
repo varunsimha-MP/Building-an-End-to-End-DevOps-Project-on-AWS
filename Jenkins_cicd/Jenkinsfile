@@ -16,7 +16,7 @@ pipeline {
                             dir('Jenkins_cicd') {
                                 sh '''
                                     git checkout master || git checkout -b master origin/master
-                                    git pull origin master
+                                    git pull master
                                 '''
                             }
                         } else {
@@ -53,7 +53,7 @@ pipeline {
 
         stage('Update ArgoCD YAML') {
             steps {
-                dir('Agrocd') {
+                dir('ArgoCD') {
                     sh '''
                         sed -i 's|image:.*|image: '"${FULL_IMAGE}"'|' appdeployment.yml
                     '''
