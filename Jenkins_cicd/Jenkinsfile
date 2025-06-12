@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         AWS_REGION = 'ap-southeast-1'
-        AWS_ACCOUNT_ID = '590180045701' 
+        AWS_ACCOUNT_ID = '590183945701'
         IMAGE_TAG = "build-${BUILD_NUMBER}"
         ECR_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/python_web_application"
         FULL_IMAGE = "${ECR_REPO}:${IMAGE_TAG}"
@@ -53,7 +53,7 @@ pipeline {
 
         stage('Update ArgoCD YAML') {
             steps {
-                dir('ArgoCD') {
+                dir('Agrocd') {
                     sh '''
                         sed -i 's|image:.*|image: '"${FULL_IMAGE}"'|' appdeployment.yml
                     '''
@@ -68,7 +68,7 @@ pipeline {
                         git config --global user.email "jenkins@ci.com"
                         git config --global user.name "Jenkins CI"
 
-                        git add appdeployment.yml
+                        git add Agrocd/appdeployment.yml
                         git commit -m "Updated image to ${FULL_IMAGE}" || echo "No changes to commit"
                         git push https://$github@github.com/varunsimha-MP/k8s_test.git HEAD:master
                     '''
