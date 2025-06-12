@@ -52,7 +52,7 @@ pipeline {
                     sh '''
                         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
                         docker tag python_web_application:latest ${ECR_REPO}:latest
-                        docker push ${ECR_REPO}:latest
+                        docker push ${ECR_REPO}:lates
                     '''
                 }
             }
