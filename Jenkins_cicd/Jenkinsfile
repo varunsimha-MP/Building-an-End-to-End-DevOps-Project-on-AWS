@@ -10,8 +10,8 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
                     script {
-                        if (fileExists('Django_CRUD_Basic-main')) {
-                            dir('Django_CRUD_Basic-main') {
+                        if (fileExists('Jenkins_cicd')) {
+                            dir('Jenkins_cicd') {
                                 sh '''
                                     git checkout master || git checkout -b master origin/master
                                     git pull origin master
@@ -38,7 +38,7 @@ pipeline {
 
         stage('Build Docker image') {
             steps {
-                dir('Django_CRUD_Basic-main') {
+                dir('Jenkins_cicd') {
                     sh '''
                         docker build -t python_web_application:latest .
                     '''
