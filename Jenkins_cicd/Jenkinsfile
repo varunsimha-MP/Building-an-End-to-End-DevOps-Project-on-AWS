@@ -9,18 +9,6 @@ pipeline {
         FULL_IMAGE = "${ECR_REPO}:${IMAGE_TAG}"
     }
     stages {
-        stage('Check for Jenkins_cicd changes') {
-            steps {
-            script {
-                def change = sh(script: "git diff --name-only HEAD~1 HEAD | grep '^Jenkins_cicd/' || true", returnStdout: true).trim()
-                if (!change) {
-                    echo "No changes in Jenkins_cicd/. Skipping build."
-                    currentBuild.result = 'NOT_BUILT'
-                    error('No changes in Jenkins_cicd/. Stopping build.')
-                }
-            }
-        }
-    }
         stage('Git clone') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
@@ -35,6 +23,18 @@ pipeline {
                         } else {
                             sh 'git clone https://$github@github.com/varunsimha-MP/k8s_test.git'
                         }
+                    }
+                }
+            }
+        }
+                stage('Check for Jenkins_cicd changes') {
+            steps {
+                script {
+                    def change = sh(script: "git diff --name-only HEAD~1 HEAD | grep '^Jenkins_cicd/' || true", returnStdout: true).trim()
+                    if (!change) {
+                        echo "No changes in Jenkins_cicd/. Skipping build."
+                        currentBuild.result = 'NOT_BUILT'
+                        error('No changes in Jenkins_cicd/. Stopping build.')
                     }
                 }
             }
