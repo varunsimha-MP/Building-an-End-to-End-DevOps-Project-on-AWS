@@ -43,7 +43,7 @@ pipeline {
 
         stage('Update ArgoCD YAML') {
             steps {
-                dir('Agrocd') {
+                dir('AgroCD') {
                     sh '''
                         sed -i 's|image:.*|image: '"${FULL_IMAGE}"'|' appdeployment.yml
                     '''
