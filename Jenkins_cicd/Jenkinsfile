@@ -8,19 +8,20 @@ pipeline {
         FULL_IMAGE = "${ECR_REPO}:${IMAGE_TAG}"
     }
     stages {
-        stage('Git clone') {
+
+        stage('Clone Application Repo') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
                     script {
-                        if (fileExists('Jenkins_cicd')) {
-                            dir('Jenkins_cicd') {
+                        if (fileExists('Jenkins_cicd_webhook')) {
+                            dir('Jenkins_cicd_webhook') {
                                 sh '''
                                     git checkout master || git checkout -b master origin/master
-                                    git pull master
+                                    git pull origin master
                                 '''
                             }
                         } else {
-                            sh 'git clone https://$github@github.com/varunsimha-MP/k8s_test.git'
+                            sh 'git clone https://$github@github.com/varunsimha-MP/Jenkins_cicd_webhook.git'
                         }
                     }
                 }
@@ -35,7 +36,7 @@ pipeline {
 
         stage('Build Docker image') {
             steps {
-                dir('Jenkins_cicd') {
+                dir('Jenkins_cicd_webhook') {
                     sh 'docker build -t python_web_application:${IMAGE_TAG} .'
                 }
             }
@@ -51,9 +52,30 @@ pipeline {
             }
         }
 
+
+        stage('Clone ArgoCD Repo') {
+            steps {
+                withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
+                    script {
+                        if (fileExists('k8s_test')){
+                            dir('k8s_test') {
+                                sh '''
+                                    git checkout master || git checkout -b master origin/master
+                                    git pull origin master
+                                '''
+                                }
+                            }   
+                        else {
+                            sh 'git clone https://$github@github.com/varunsimha-MP/k8s_test.git'
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Update ArgoCD YAML') {
             steps {
-                dir('ArgoCD') {
+                dir('k8s_test/ArgoCD') {
                     sh '''
                         sed -i 's|image:.*|image: '"${FULL_IMAGE}"'|' appdeployment.yml
                     '''
@@ -61,17 +83,19 @@ pipeline {
             }
         }
 
-        stage('Commit and Push Changes') {
+        stage('Commit and Push Changes to ArgoCD Repo') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
-                    sh '''
-                        git config --global user.email "jenkins@ci.com"
-                        git config --global user.name "Jenkins CI"
+                    dir('k8s_test') {
+                        sh '''
+                            git config --global user.email "jenkins@ci.com"
+                            git config --global user.name "Jenkins CI"
 
-                        git add Agrocd/appdeployment.yml
-                        git commit -m "Updated image to ${FULL_IMAGE}" || echo "No changes to commit"
-                        git push https://$github@github.com/varunsimha-MP/k8s_test.git HEAD:master
-                    '''
+                            git add ArgoCD/appdeployment.yml
+                            git commit -m "Updated image to ${FULL_IMAGE}" || echo "No changes to commit"
+                            git push https://$github@github.com/varunsimha-MP/k8s_test.git HEAD:master
+                        '''
+                    }
                 }
             }
         }
