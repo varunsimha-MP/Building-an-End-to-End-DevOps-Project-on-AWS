@@ -25,7 +25,7 @@ pipeline {
             steps {
                 dir('k8s_repo') {
                     script {
-                        def change = sh(script: "git diff origin/master --name-only | grep '^Jenkins_cicd/' || true", returnStdout: true).trim()
+                        def change = sh(script: "git diff origin/master --name-only | grep '^Jenkins_cicd/*' || true", returnStdout: true).trim()
                         if (!change) {
                             echo "No changes in Jenkins_cicd/. Skipping build."
                             currentBuild.result = 'NOT_BUILT'
