@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HTML Form</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+<body>
+<center><br><br>
+<abbr title="mitmysore"><img src="images.png"/></abbr>
+<br><br>
+<div style="border:5px solid #73AD21;border-radius:35px";>
+<table>
+<h1 style="color:red;"><b>PERSONAL INFORMATION</b></h1>
+<form action="{% url 'insert' %}" method="post">
+    {% csrf_token %}
+<tr>
+<td><label for="fname"><b>First name:</b></label></td>
+<td><input type="text" id="fname" name="fname"required></td>
+</tr>
+<tr>
+<td><label for="lname"><b>Last name:</b></label></td>
+<td><input type="text" id="lname" name="lname"  required></td>
+</tr>
+<tr>
+<td><label for="mail"><b>Mail Id:</b></label></td>
+<td><input type=email id="mail" name="mail" required></td>
+</tr>
+<tr>
+<td><label for="phone"><b>Phone Number:</b></label></td>
+<td><input type="tel" id="phone" name="phone" size:"10" placeholder="xxx-xxx-xxxx" required></td>
+</tr>
+</table><br>
+<input type="submit" value="submit"><br><br>
+<input type="reset">
+<p><b>Note:</b>Only valid details are consider</p>
+</form>
+</div>
+<marquee behavior=alternate><b>Created by VSMP</b></marquee>
+</center>
+</body>
+</html>
