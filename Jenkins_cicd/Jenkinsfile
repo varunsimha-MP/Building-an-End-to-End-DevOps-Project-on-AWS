@@ -14,7 +14,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
                     sh '''
-                        rm -rf k8s_repo || true
+                        
                         git clone https://$github@github.com/varunsimha-MP/k8s_test.git k8s_repo
                     '''
                 }
