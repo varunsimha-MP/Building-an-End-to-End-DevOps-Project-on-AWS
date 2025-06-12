@@ -2,48 +2,58 @@ pipeline {
     agent any
     environment {
         AWS_REGION = 'ap-southeast-1'
-	    AWS_ACCOUNT_ID = '590183945701'
-        ECR_REPO = '${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/python_web_application'
+        AWS_ACCOUNT_ID = '590183945701'
+        ECR_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/python_web_application"
     }
     stages {
         stage('Git clone') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
-			        script {
-				        if (fileExists('Django_CRUD_Basic-main')) {
-					        dir('Django_CRUD_Basic-main') {
-						        sh '''
-                                git checkout main
-                                git pull origin main
+                    script {
+                        if (fileExists('Django_CRUD_Basic-main')) {
+                            dir('Django_CRUD_Basic-main') {
+                                sh '''
+                                    git checkout master || git checkout -b master origin/master
+                                    git pull origin master
                                 '''
-					        }
-				        }
-				        else {
-				            sh 'git clone https://$github@github.com/varunsimha-MP/Django_CRUD_Basic-main.git'
-			            }
+                            }
+                        } else {
+                            sh 'git clone https://$github@github.com/varunsimha-MP/k8s_test.git'
+                        }
                     }
                 }
             }
         }
-	stage('Clean and build Docker Images on Jenkin server') {
-		steps {
-		    dir('Django_CRUD_Basic-main') {
-			    sh """
-				    docker-compose down --rmi all --remove-orphans
-				    docker-compose build
-				"""
-			    }
-		    }
-		}
+
+        stage('Clean old Docker image') {
+            steps {
+                script {
+                    sh '''
+                        docker rmi -f python_web_application:latest || true
+                       
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker image') {
+            steps {
+                dir('Django_CRUD_Basic-main') {
+                    sh '''
+                        docker build -t python_web_application:latest .
+                    '''
+                }
+            }
+        }
+
         stage('Push Docker Image To ECR') {
             steps {
-                dir('Python-Web-Application-Jenkins') {
-                    sh """
-                        docker login -u AWS -p \$(aws ecr get-login-password --region ${AWS_REGION}) ${ECR_REPO}
-                        #docker build -t ${ECR_REPO}:latest .
+                script {
+                    sh '''
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REPO}
                         docker tag python_web_application:latest ${ECR_REPO}:latest
                         docker push ${ECR_REPO}:latest
-                    """
+                    '''
                 }
             }
         }
