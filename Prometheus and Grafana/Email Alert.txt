@@ -1,0 +1,23 @@
+To get the alert over the gmail:
+-> Update the /etc/alertmanager/alertmanager.yml
+
+global:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'your-email@gmail.com'
+  smtp_auth_username: 'your-email@gmail.com'
+  smtp_auth_password: 'your-16-char-app-password' # paste here without spaces
+  smtp_require_tls: true
+
+route:
+  group_by: ['alertname']
+  receiver: 'email-alert'
+
+receivers:
+- name: 'email-alert'
+  email_configs:
+  - to: 'your-receiving-email@gmail.com'
+    send_resolved: true
+
+-------------------------------------------------------------------------
+-> Restart Alertmanager:
+systemctl restart alertmanager

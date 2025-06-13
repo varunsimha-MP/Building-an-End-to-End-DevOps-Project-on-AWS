@@ -1,0 +1,103 @@
+How to connect the Prometheus to Kubernetes and monitor it:
+-------------------------------------------------------
+
+1. # Add Prometheus Helm repo:
+-> helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+-> helm repo update
+
+Now install:
+# Install kube-state-metrics
+-> helm install kube-state-metrics prometheus-community/kube-state-metrics --namespace monitoring --create-namespace
+
+# Install node-exporter
+-> helm install node-exporter prometheus-community/prometheus-node-exporter --namespace monitoring
+
+Change kube-state-metrics to NodePort and node-exporter
+-> kubectl patch svc kube-state-metrics -n monitoring -p '{"spec": {"type": "NodePort"}}'
+
+kubectl patch svc prometheus-node-exporter -n monitoring -p '{"spec": {"type": "NodePort"}}'
+
+-------------------------
+-> Get the assigned NodePorts:
+kubectl get svc -n monitoring
+
+------------------------------------------
+Configure External Prometheus to Scrape Kubernetes Metrics
+On your Prometheus VM, modify prometheus.yml:
+
+for kube-state-metrics:
+scrape_configs:
+
+  - job_name: 'kube-state-metrics'
+    static_configs:
+      - targets: ['10.0.0.5:31234']
+
+  - job_name: 'k8s-node-exporter'
+    static_configs:
+      - targets: ['10.0.0.5:31999']
+
+  - job_name: 'kubernetes-kubelet'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    static_configs:
+      - targets: ['10.0.0.5:10250']
+    metrics_path: /metrics
+
+  - job_name: 'kubelet-cadvisor'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    static_configs:
+      - targets: ['10.0.0.5:10250']
+    metrics_path: /metrics/cadvisor
+
+
+-------------------------------
+Create a ServiceAccount and ClusterRoleBinding (to allow kubelet access)
+Apply this in your Kubernetes cluster:
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-sa
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-k8s-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
+    verbs: ["get", "list", "watch"]
+  - nonResourceURLs: ["/metrics", "/metrics/cadvisor"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-k8s-role-binding
+roleRef:
+  kind: ClusterRole
+  name: prometheus-k8s-role
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-sa
+    namespace: default
+
+--------------------------------
+Get Bearer Token and Mount it to Prometheus VM
+Get the token:
+kubectl -n default get secret $(kubectl -n default get sa prometheus-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 -d
+
+--------------------
+Save it to your VM as:
+/etc/prometheus/k8s-bearer.token
+
+------------------------
+Update your prometheus.yml:
+bearer_token_file: /etc/prometheus/k8s-bearer.token

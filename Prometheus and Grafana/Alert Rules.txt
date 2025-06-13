@@ -1,0 +1,83 @@
+ cat /etc/prometheus/rules/allrules.yml
+groups:
+- name: SystemAlerts
+  rules:
+
+  # 1. Instance Down
+  - alert: InstanceDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Instance {{ $labels.instance }} is down"
+      description: "{{ $labels.instance }} is not reachable by Prometheus."
+
+  # 2. High CPU Usage
+  - alert: HighCPUUsage
+    expr: (1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m]))) * 100 > 80
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU usage on {{ $labels.instance }}"
+      description: "CPU usage is above 90% for more than 2 minutes."
+
+  # 3. High Memory Usage
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 80
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Memory usage on {{ $labels.instance }}"
+      description: "Memory usage is above 90% for more than 2 minutes."
+
+  # 4. Disk Usage > 90%
+  - alert: DiskFull
+    expr: (node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"}) / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} * 100 > 80
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Disk usage high on {{ $labels.instance }} (mountpoint {{ $labels.mountpoint }})"
+      description: "Disk usage above 90% on {{ $labels.mountpoint }} of instance {{ $labels.instance }}"
+
+  # 5. Root Filesystem Almost Full
+  - alert: RootDiskFull
+    expr: (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}) / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"} * 100 < 10
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Root partition almost full on {{ $labels.instance }}"
+      description: "Less than 10% space left on root partition of {{ $labels.instance }}"
+
+  # 6. Service Down (custom exporter approach — example for sshd)
+  - alert: SSHDDown
+    expr: node_systemd_unit_state{name="sshd.service",state="active"} == 0
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "SSHD service is down on {{ $labels.instance }}"
+      description: "The SSHD service is not running on {{ $labels.instance }}"
+
+  - alert: JenkinsJobFailed
+    expr: increase(jenkins_runs_failure_total{job="jenkins_job"}[5m]) > 0
+    for: 10s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Jenkins job failure detected"
+      description: "One or more Jenkins jobs have failed in the last 5 minutes on instance {{ $labels.instance }}."
+
+
+  - alert: JenkinsJobSucceeded
+    expr: increase(jenkins_runs_success_total{job="jenkins_job"}[5m]) > 0
+    for: 10s
+    labels:
+      severity: info
+    annotations:
+      summary: "Jenkins job succeeded"
+      description: "One or more Jenkins jobs have succeeded in the last 5 minutes on instance {{ $labels.instance }}."
