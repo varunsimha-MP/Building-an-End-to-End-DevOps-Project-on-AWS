@@ -22,20 +22,8 @@ resource "aws_efs_mount_target" "efs_mount_eks" {
     security_groups = [aws_security_group.efs_SG.id]
 }
 
-resource "aws_efs_access_point" "eks_access_point" {
-  file_system_id = aws_efs_file_system.eks_efs.id
-  root_directory {
-    path = "/mysql"
 
-    creation_info {
-      owner_uid = 1001
-      owner_gid = 1001
-      permissions = "0777"
-    }
-  }
-  tags = var.eks_ac
-  
-}
+
 resource "aws_security_group" "efs_SG" {
   name = "EFS_Terraform_SG"
   description = "EKS_Terraform_SG"

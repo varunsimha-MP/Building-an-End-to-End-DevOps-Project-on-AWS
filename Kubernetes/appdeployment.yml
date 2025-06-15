@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: app-pod
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -33,6 +33,9 @@ spec:
                 configMapKeyRef:
                   name: my-config
                   key: DB_HOST
+            
+            - name: DB_PORT
+              value: "3306"
 
             - name: DB_NAME
               valueFrom:

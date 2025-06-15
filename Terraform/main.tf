@@ -45,7 +45,6 @@ module "eks" {
       description = "Allowing SSH traffic"
     }
   }
-  depends_on = [module.ec2]
 }
 
 module "efs" {

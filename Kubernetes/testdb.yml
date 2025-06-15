@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-pod
+spec:
+  serviceName: mydb
+  replicas: 2
+  selector:
+    matchLabels:
+      app: db-pod
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+  template:
+    metadata:
+      labels:
+        app: db-pod
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      containers:
+      - name: db-pod
+        image: bitnami/mysql:8.0.36
+        ports:
+        - containerPort: 3306
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: MYSQL_ROOT_PASSWORD
+          - name: MYSQL_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: my-config
+                key: MYSQL_DATABASE
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /bitnami/mysql
+        - name: init-script-volume
+          mountPath: /docker-entrypoint-initdb.d/init.sql
+          subPath: init.sql
+      volumes:
+      - name: init-script-volume
+        configMap:
+          name: my-config
+          items:
+          - key: init.sql
+            path: init.sql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-storage
+    spec:
+      accessModes: ["ReadWriteMany"]
+      storageClassName: efs-sc
+      resources:
+        requests:
+          storage: 1Gi

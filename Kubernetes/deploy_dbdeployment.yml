@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: db-pod
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: db-pod
@@ -21,7 +21,7 @@ spec:
         fsGroup: 1001
       containers:
         - name: db-pod
-          image: bitnami/mysql:latest
+          image: varunsimha/dbpod:latest
           ports:
             - containerPort: 3306
           resources:
@@ -52,17 +52,10 @@ spec:
 
           volumeMounts:
             - name: mysql-storage
-              mountPath: /bitnami/mysql
-            - name: init-script-volume
-              mountPath: /docker-entrypoint-initdb.d
+              mountPath: /var/lib/mysql
 
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:
             claimName: my-pvc
-        - name: init-script-volume
-          configMap:
-            name: my-config
-            items:
-              - key: init.sql
-                path: init.sql
+
