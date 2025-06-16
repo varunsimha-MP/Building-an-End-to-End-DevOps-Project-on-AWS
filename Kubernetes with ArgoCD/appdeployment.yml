@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: app-pod
-          image: varunsimha/myapp:latest
+          image: varunsimha/last:latest
           resources:
             limits:
               cpu: "500m"
@@ -51,4 +51,4 @@ spec:
                 secretKeyRef:
                   name: my-secret
                   key: DB_PASSWORD
-                  
+
