@@ -7,7 +7,7 @@ variable "instance_type" {
 }
 
 variable "ec2_name" {
-    default = ["Jenkins","Prometheus and Grafana" ]
+    default = "Jenkins"
 }
 
 variable "vpc_id" {

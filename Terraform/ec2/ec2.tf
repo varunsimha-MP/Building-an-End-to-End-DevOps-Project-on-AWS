@@ -1,5 +1,5 @@
 resource "aws_instance" "ec2" {
-    count = 2
+    count = 1
     ami = var.instance_ami
     associate_public_ip_address = true
     instance_type = var.instance_type
@@ -7,7 +7,7 @@ resource "aws_instance" "ec2" {
     vpc_security_group_ids = [aws_security_group.ec2_sg.id]
     key_name = var.key
     tags = {
-        Name = var.ec2_name[count.index]
+        Name = var.ec2_name
     }
     iam_instance_profile = aws_iam_instance_profile.jenkins_instance.name
 }
