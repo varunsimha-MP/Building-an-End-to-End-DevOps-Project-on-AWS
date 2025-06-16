@@ -24,3 +24,4 @@ spec:
                 name: myapp
                 port:
                   number: 8000
+                  
