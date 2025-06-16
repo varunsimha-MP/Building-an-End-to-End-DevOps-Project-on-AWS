@@ -2,6 +2,14 @@
 #This creates a Prometheus-specific identity in your cluster, which will be used to generate the token that allows access to the Kubernetes API and kubelet endpoints.
 
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-sa
+  namespace: default
+
+---
+
+apiVersion: v1
 kind: Secret
 metadata:
   name: prometheus-sa-token
