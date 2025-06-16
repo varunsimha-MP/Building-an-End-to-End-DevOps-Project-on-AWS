@@ -51,3 +51,4 @@ spec:
                 secretKeyRef:
                   name: my-secret
                   key: DB_PASSWORD
+                  
