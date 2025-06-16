@@ -8,9 +8,11 @@ metadata:
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-path: /
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}, {"HTTP": 80}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:region:account:certificate/04e3d5bb-f4bb-41fb-848f-25dfab789579
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
 spec:
-  ingressClassName: alb  # ✅ Use this instead of the annotation
+  ingressClassName: alb
   rules:
     - http:
         paths:
