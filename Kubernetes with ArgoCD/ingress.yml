@@ -2,6 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: myapp-ingress
+  namespace: k8s-project
   annotations:
     alb.ingress.kubernetes.io/load-balancer-name: myapp-alb
     alb.ingress.kubernetes.io/scheme: internet-facing
@@ -9,8 +10,10 @@ metadata:
     alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-path: /
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    # Optional: add ArgoCD tracking ID if you're using multiple applications
+    argocd.argoproj.io/tracking-id: k8s-project:networking.k8s.io/Ingress:k8s-project/myapp-ingress
 spec:
-  ingressClassName: alb  # ✅ Use this instead of the annotation
+  ingressClassName: alb  # Required for AWS ALB Controller (do not use annotation here)
   rules:
     - http:
         paths:
