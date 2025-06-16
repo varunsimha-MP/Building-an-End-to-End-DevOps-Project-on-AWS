@@ -75,7 +75,7 @@ pipeline {
 
         stage('Update ArgoCD YAML') {
             steps {
-                dir('k8s_test/ArgoCD') {
+                dir('k8s_test/Kubernetes with ArgoCD') {
                     sh '''
                         sed -i 's|image:.*|image: '"${FULL_IMAGE}"'|' appdeployment.yml
                     '''
@@ -83,7 +83,7 @@ pipeline {
             }
         }
 
-        stage('Commit and Push Changes to ArgoCD Repo') {
+        stage('Commit and Push Changes to Kubernetes with ArgoCD Repo') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'github')]) {
                     dir('k8s_test') {
@@ -91,7 +91,7 @@ pipeline {
                             git config --global user.email "jenkins@ci.com"
                             git config --global user.name "Jenkins CI"
 
-                            git add ArgoCD/appdeployment.yml
+                            git add "Kubernetes with ArgoCD/appdeployment.yml"
                             git commit -m "Updated image to ${FULL_IMAGE}" || echo "No changes to commit"
                             git push https://$github@github.com/varunsimha-MP/k8s_test.git HEAD:master
                         '''

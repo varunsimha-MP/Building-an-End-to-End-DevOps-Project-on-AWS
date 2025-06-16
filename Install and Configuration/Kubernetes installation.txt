@@ -1,0 +1,22 @@
+To install Kubernetes on windows:
+--------------------------------
+Using curl:
+If you have curl installed, use this command:
+-> curl.exe -LO "https://dl.k8s.io/release/v1.32.0/bin/windows/amd64/kubectl.exe"
+
+Download the kubectl checksum file:
+-> curl.exe -LO "https://dl.k8s.io/v1.32.0/bin/windows/amd64/kubectl.exe.sha256"
+
+Test to ensure the version of kubectl is the same as downloaded:
+-> kubectl version --client
+
+Note: If I need to config to aws then another cluster like azure or docker desktop run the below cmd:
+
+To switch to another cluster:
+-> kubectl config use-context docker-desktop
+
+For AWS,
+aws eks update-kubeconfig --region ap-southeast-1 --name testing_k8s
+
+To view which config your using:
+-> kubectl config get-contexts

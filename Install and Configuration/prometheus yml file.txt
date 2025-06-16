@@ -42,6 +42,44 @@ scrape_configs:
     static_configs:
       - targets: ["20.193.249.68:9091"]
 
+
+    - job_name: 'kube-state-metrics'
+    kubernetes_sd_configs:
+      - role: endpoints
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_namespace]
+        action: keep
+        regex: kube-state-metrics;monitoring
+
+  - job_name: 'node-exporter'
+    kubernetes_sd_configs:
+      - role: endpoints
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_namespace]
+        action: keep
+        regex: prometheus-node-exporter;monitoring
+
+  - job_name: 'kubelet'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+    metrics_path: /metrics
+
+  - job_name: 'cadvisor'
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    kubernetes_sd_configs:
+      - role: node
+    metrics_path: /metrics/cadvisor
+
   - job_name: 'jenkins_job'
     metrics_path: '/prometheus'
     static_configs:

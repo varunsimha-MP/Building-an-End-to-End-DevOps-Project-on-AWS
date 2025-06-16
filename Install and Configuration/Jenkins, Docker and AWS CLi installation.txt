@@ -1,0 +1,41 @@
+To install Docker and docker-compose:
+sudo apt update
+2. sudo apt upgrade
+3. sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+4. curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+5. echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+6. sudo apt update
+7. sudo apt install -y docker-ce docker-ce-cli containerd.io
+8. sudo systemctl status docker
+9. sudo apt install docker-compose
+
+------------------------------------------------------------------------------
+
+To install the AWS CLI:
+1. sudo apt install aws-cli
+	OR
+1. curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+2. sudo apt update
+3. sudo apt install unzip
+4. unzip awscliv2.zip
+5. sudo ./aws/install
+
+---------------------------------------------------------------------------
+
+To Install the Jenkins:
+1. sudo apt update
+2. sudo apt install -y openjdk-17-jdk
+3. curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+4. echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+5. sudo apt update 
+6. sudo apt install -y jenkins
+7. sudo systemctl enable --now jenkins
+	sudo systemctl status jenkins
+
+----------------------------------------------------------------------------------
+Retrieve Jenkins Initial Admin Password
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+To give full access to Jenkins user for using Docker:
+1. sudo usermod -aG docker jenkins
+2. systemctl restart jenkins
